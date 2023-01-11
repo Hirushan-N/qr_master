@@ -1,9 +1,13 @@
 import './App.css';
 import { useState } from 'react';
+//https://github.com/rosskhanas/react-qr-code
 import QRCode from "react-qr-code";
+//https://github.com/nimiq/qr-scanner
+import QrScanner from 'qr-scanner'; 
 
 function App() {
   const [inputValue, setInputValue] = useState("")
+  const [result, setResult] = useState("")
 
   // download qe code image
   const download = () => {
@@ -27,6 +31,17 @@ function App() {
     img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
   }
 
+    // read qe code image
+    const readCode = (e)=>{
+      const file = e.target.files[0];
+      if (!file) {
+          return;
+      }
+      QrScanner.scanImage(file, { returnDetailedScanResult: true })
+          .then(result => setResult(result.data))
+          .catch(e => console.log(e));
+    }
+
   return (
     <div className="App">
       npm add qr-scanner react-qr-code
@@ -35,6 +50,8 @@ function App() {
       <input type="text" onChange={(e) => setInputValue(
         e.target.value
       )} ></input>
+
+      <input type="button" onClick={download} value="Download"></input>
 
       <div style={{height: "auto", margin: "20 auto", padding: "50px 0px 0px 300px", maxWidth: 200, width: "100%" }}>
         <QRCode
@@ -45,13 +62,12 @@ function App() {
           viewBox={`0 0 256 256`}
         />
       </div>
-      <text>{inputValue}</text>
-
-
-      <input type="button" onClick={download} value="Download"></input>
-
+      <p>{inputValue}</p>
 
       <h3>QR Reader</h3>
+      <input type="file" onChange={(e)=> readCode(e) } ></input>
+
+      <p>Result is : {result}</p>
     </div>
   );
 }
